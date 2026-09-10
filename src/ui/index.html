@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Flujo de Pedidos y Cotizaciones</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <header class="app-header">
+      <div class="app-header-inner">
+        <span class="app-mark">JHC</span>
+        <div>
+          <h1>Flujo de Pedidos y Cotizaciones</h1>
+          <p class="subtitle">Seguimiento del proceso entre bodega, compras, supervisión y proveedores</p>
+        </div>
+      </div>
+    </header>
+
+    <main class="app-main">
+      <section class="panel form-panel">
+        <h2 id="form-title">Nuevo paso</h2>
+        <form id="step-form">
+          <input type="hidden" id="step-id" />
+
+          <label for="title">Título</label>
+          <input type="text" id="title" required placeholder="Ej. Preparar requisición" />
+
+          <label for="actor">Responsable</label>
+          <select id="actor" required></select>
+
+          <label for="type">Tipo</label>
+          <select id="type" required></select>
+
+          <label for="description">Descripción</label>
+          <textarea id="description" rows="3" placeholder="¿Qué ocurre en este paso?"></textarea>
+
+          <label for="reference-step">Ubicar respecto a</label>
+          <select id="reference-step">
+            <option value="">— Al final de la lista —</option>
+          </select>
+
+          <div class="radio-group" id="position-mode-group">
+            <label><input type="radio" name="position-mode" value="after" checked /> Insertar después</label>
+            <label><input type="radio" name="position-mode" value="before" /> Insertar antes</label>
+          </div>
+
+          <div class="form-actions">
+            <button type="submit" id="submit-btn">Agregar paso</button>
+            <button type="button" id="cancel-edit-btn" hidden>Cancelar</button>
+          </div>
+        </form>
+      </section>
+
+      <section class="panel list-panel">
+        <div class="list-panel-header">
+          <h2>Pasos del proceso</h2>
+          <span id="step-count" class="badge">0 pasos</span>
+        </div>
+        <div id="steps-container"></div>
+      </section>
+    </main>
+
+    <footer class="app-footer">
+      <p>Proyecto de estructuras de datos — lista doblemente enlazada aplicada a un caso de negocio.</p>
+    </footer>
+
+    <script type="module" src="../main.ts"></script>
+  </body>
+</html>
