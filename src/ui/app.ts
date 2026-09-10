@@ -1,13 +1,31 @@
 import { OrderProcessList } from "../domain/OrderProcessList";
-import { ACTORS, ProcessStep, STEP_TYPES } from "../domain/ProcessStep";
+import { OrderBoard } from "../domain/OrderBoard";
+import { ACTORS, Actor, ProcessStep, STEP_TYPES } from "../domain/ProcessStep";
 import { sampleSteps } from "../data/sampleSteps";
 import { renderSteps } from "./renderer";
+import { renderActorBoard, renderSummaryBoard } from "./board";
 import { ACTOR_LABELS, STEP_TYPE_LABELS } from "./labels";
+
+type RoleTab = "summary" | "admin" | Actor;
 
 const processList = new OrderProcessList();
 processList.loadSteps(sampleSteps);
 
+const orderBoard = new OrderBoard();
+let orderCounter = 0;
+
+function nextOrderCode(): string {
+  orderCounter += 1;
+  return `PED-${String(orderCounter).padStart(3, "0")}`;
+}
+
+// Un par de pedidos de ejemplo ya en curso, para que el tablero de cada
+// rol tenga algo que mostrar sin esperar a que se cree uno manualmente.
+orderBoard.createOrder(nextOrderCode(), "step-01");
+orderBoard.createOrder(nextOrderCode(), "step-06");
+
 let editingId: string | null = null;
+let activeRole: RoleTab = "summary";
 
 function generateId(): string {
   return `step-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
@@ -34,6 +52,14 @@ export function initApp(): void {
   const container = qs<HTMLElement>("#steps-container");
   const stepCount = qs<HTMLElement>("#step-count");
 
+  const roleNav = qs<HTMLElement>("#role-nav");
+  const boardPanel = qs<HTMLElement>("#board-panel");
+  const adminPanel = qs<HTMLElement>("#admin-panel");
+  const boardTitle = qs<HTMLElement>("#board-title");
+  const boardSubtitle = qs<HTMLElement>("#board-subtitle");
+  const ordersContainer = qs<HTMLElement>("#orders-container");
+  const newOrderBtn = qs<HTMLButtonElement>("#new-order-btn");
+
   populateSelect(actorField, ACTORS, ACTOR_LABELS);
   populateSelect(typeField, STEP_TYPES, STEP_TYPE_LABELS);
 
@@ -58,7 +84,32 @@ export function initApp(): void {
     }
   }
 
-  function refresh(): void {
+  function refreshBoard(): void {
+    if (activeRole === "admin") return;
+
+    if (activeRole === "summary") {
+      boardTitle.textContent = "Resumen de pedidos";
+      boardSubtitle.textContent = "Estado y ubicación actual de cada pedido dentro del proceso.";
+      renderSummaryBoard(ordersContainer, orderBoard.getAllOrders(), processList);
+      return;
+    }
+
+    const actor = activeRole;
+    boardTitle.textContent = ACTOR_LABELS[actor];
+    boardSubtitle.textContent = "Pedidos que necesitan una acción de este rol en este momento.";
+    renderActorBoard(ordersContainer, actor, orderBoard.getOrdersForActor(processList, actor), processList, {
+      onAdvance: (orderId, nextStepId) => {
+        orderBoard.advanceOrder(orderId, nextStepId);
+        refreshBoard();
+      },
+      onReject: (orderId) => {
+        orderBoard.rejectOrder(orderId);
+        refreshBoard();
+      },
+    });
+  }
+
+  function refreshAdmin(): void {
     const steps = processList.getAllSteps();
     stepCount.textContent = `${steps.length} paso${steps.length === 1 ? "" : "s"}`;
     renderSteps(container, steps, {
@@ -66,15 +117,51 @@ export function initApp(): void {
       onDelete: handleDelete,
       onMoveUp: (id) => {
         processList.moveStepUp(id);
-        refresh();
+        refreshAdmin();
       },
       onMoveDown: (id) => {
         processList.moveStepDown(id);
-        refresh();
+        refreshAdmin();
       },
     });
     refreshReferenceOptions();
   }
+
+  function refresh(): void {
+    refreshAdmin();
+    refreshBoard();
+  }
+
+  function setActiveRole(role: RoleTab): void {
+    activeRole = role;
+
+    for (const btn of roleNav.querySelectorAll<HTMLButtonElement>(".role-tab")) {
+      btn.classList.toggle("active", btn.dataset.role === role);
+    }
+
+    const isAdmin = role === "admin";
+    boardPanel.hidden = isAdmin;
+    adminPanel.hidden = !isAdmin;
+    newOrderBtn.hidden = isAdmin;
+
+    if (!isAdmin) refreshBoard();
+  }
+
+  roleNav.addEventListener("click", (event) => {
+    const target = (event.target as HTMLElement).closest<HTMLButtonElement>(".role-tab");
+    if (!target || !target.dataset.role) return;
+    setActiveRole(target.dataset.role as RoleTab);
+  });
+
+  newOrderBtn.addEventListener("click", () => {
+    const firstStep = processList.getAllSteps()[0];
+    if (!firstStep) {
+      window.alert("Primero define al menos un paso del proceso en “Definir proceso”.");
+      return;
+    }
+    orderBoard.createOrder(nextOrderCode(), firstStep.id);
+    refreshBoard();
+  });
 
   function resetForm(): void {
     editingId = null;
@@ -156,6 +243,7 @@ export function initApp(): void {
     refresh();
   });
 
+  setActiveRole("summary");
   refresh();
 }
 

@@ -73,4 +73,14 @@ export class OrderProcessList {
   public indexOfStep(id: string): number {
     return this.list.indexOf((s) => s.id === id);
   }
+
+  /**
+   * Id of the step that follows `id` in the list order. Used to advance an
+   * order when a task is completed, or when a decision is answered "Sí".
+   */
+  public getNaturalNextId(id: string): string | null {
+    const index = this.indexOfStep(id);
+    if (index === -1) return null;
+    return this.list.getAt(index + 1)?.id ?? null;
+  }
 }

@@ -71,18 +71,50 @@ body {
   font-size: 0.85rem;
 }
 
+.role-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 14px 32px 0;
+}
+
+.role-tab {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  color: var(--color-text-muted);
+  border-radius: 999px;
+  padding: 7px 14px;
+  font-size: 0.8rem;
+}
+
+.role-tab:hover {
+  color: var(--color-text);
+  border-color: var(--color-accent);
+}
+
+.role-tab.active {
+  background: var(--color-accent);
+  border-color: var(--color-accent);
+  color: #fff8f0;
+}
+
 .app-main {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 20px 32px 24px;
+}
+
+.admin-panels {
   display: grid;
   grid-template-columns: 340px 1fr;
   gap: 20px;
-  max-width: 1100px;
-  margin: 0 auto;
-  padding: 24px 32px;
   align-items: start;
 }
 
 @media (max-width: 860px) {
-  .app-main {
+  .admin-panels {
     grid-template-columns: 1fr;
   }
 }
@@ -322,6 +354,168 @@ button {
   border-color: var(--color-danger);
   color: var(--color-danger);
   background: var(--color-danger-soft);
+}
+
+.board-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.board-header h2 {
+  margin: 0 0 4px;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.board-subtitle {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 0.8rem;
+}
+
+#new-order-btn {
+  flex-shrink: 0;
+  background: var(--color-accent);
+  color: #fff8f0;
+}
+
+#new-order-btn:hover {
+  background: var(--color-accent-hover);
+}
+
+.orders-container {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.order-summary-table {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.order-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--color-surface-alt);
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  padding: 9px 14px;
+  font-size: 0.85rem;
+}
+
+.order-code {
+  font-weight: 700;
+  color: var(--color-text);
+  flex-shrink: 0;
+}
+
+.order-location {
+  color: var(--color-text-muted);
+  flex: 1;
+  min-width: 0;
+}
+
+.order-status-badge {
+  flex-shrink: 0;
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-weight: 700;
+  padding: 2px 10px;
+  border-radius: 999px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  color: var(--color-text-muted);
+}
+
+.order-status-badge.in-progress {
+  background: var(--color-decision-soft);
+  color: var(--color-decision);
+  border-color: transparent;
+}
+
+.order-status-badge.completed {
+  background: var(--color-task-soft);
+  color: var(--color-task);
+  border-color: transparent;
+}
+
+.order-status-badge.rejected {
+  background: var(--color-danger-soft);
+  color: var(--color-danger);
+  border-color: transparent;
+}
+
+.order-card {
+  background: var(--color-surface-alt);
+  border: 1px solid var(--color-border);
+  border-left: 3px solid var(--color-border);
+  border-radius: 6px;
+  padding: 14px 16px;
+}
+
+.order-card.task {
+  border-left-color: var(--color-task);
+}
+
+.order-card.decision {
+  border-left-color: var(--color-decision);
+}
+
+.order-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+.order-step-title {
+  margin: 0 0 4px;
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.order-step-description {
+  margin: 0 0 12px;
+  font-size: 0.82rem;
+  color: var(--color-text-muted);
+}
+
+.order-card-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.advance-btn {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  color: var(--color-text);
+  font-size: 0.8rem;
+  padding: 7px 14px;
+}
+
+.advance-btn:hover {
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+}
+
+.advance-btn.yes-btn {
+  background: var(--color-task-soft);
+  border-color: transparent;
+  color: var(--color-task);
+}
+
+.advance-btn.no-btn {
+  background: var(--color-danger-soft);
+  border-color: transparent;
+  color: var(--color-danger);
 }
 
 .empty-state {

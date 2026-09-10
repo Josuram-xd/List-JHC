@@ -1,5 +1,11 @@
 import { ProcessStep } from "../domain/ProcessStep";
 
+// El flujo sigue el "Diagrama de procesos para gestión de pedidos en tiendas".
+// El avance normal ("Sí" en una decisión, o completar una tarea) sigue el
+// orden natural de la lista. Solo las ramas "No" de las decisiones, que
+// regresan a un paso anterior del diagrama, necesitan un destino explícito
+// (noNextId). Cuando una decisión no tiene noNextId, su rama "No" termina
+// el pedido (rechazado).
 export const sampleSteps: ProcessStep[] = [
   {
     id: "step-01",
@@ -13,7 +19,7 @@ export const sampleSteps: ProcessStep[] = [
     title: "Preparar solicitud de cotización",
     actor: "BuyerAgent",
     type: "task",
-    description: "El agente comprador redacta una solicitud de cotización a partir de la requisición.",
+    description: "El agente comprador redacta una solicitud de cotización (RFQ) a partir de la requisición.",
   },
   {
     id: "step-03",
@@ -21,6 +27,9 @@ export const sampleSteps: ProcessStep[] = [
     actor: "BuyerAgent",
     type: "decision",
     description: "Se decide si la solicitud de cotización requiere revisión del supervisor antes de enviarse.",
+    yesLabel: "Sí, necesita revisión",
+    noLabel: "No, enviar directo al vendedor",
+    noNextId: "step-06",
   },
   {
     id: "step-04",
@@ -35,6 +44,9 @@ export const sampleSteps: ProcessStep[] = [
     actor: "Supervisor",
     type: "decision",
     description: "El supervisor decide si aprueba la solicitud de cotización.",
+    yesLabel: "Sí, aprobar",
+    noLabel: "No, regresar al comprador",
+    noNextId: "step-02",
   },
   {
     id: "step-06",
@@ -43,6 +55,96 @@ export const sampleSteps: ProcessStep[] = [
     type: "task",
     description: "El vendedor revisa la solicitud de cotización recibida del comprador.",
   },
-  // Los pasos restantes del flujo (cotización, pedido, entrega y pago)
-  // se agregan desde el formulario como parte del caso de estudio.
+  {
+    id: "step-07",
+    title: "¿Decide cotizar?",
+    actor: "Seller",
+    type: "decision",
+    description: "El vendedor decide si ofrece una cotización para los artículos solicitados.",
+    yesLabel: "Sí, cotizar",
+    noLabel: "No cotizar (rechazar)",
+  },
+  {
+    id: "step-08",
+    title: "Preparar la cotización",
+    actor: "Seller",
+    type: "task",
+    description: "El vendedor prepara la cotización con precios y condiciones.",
+  },
+  {
+    id: "step-09",
+    title: "Analizar respuesta de cotización",
+    actor: "BuyerAgent",
+    type: "task",
+    description: "El agente comprador analiza la respuesta de cotización recibida del vendedor.",
+  },
+  {
+    id: "step-10",
+    title: "Revisar la cotización",
+    actor: "Supervisor",
+    type: "task",
+    description: "El supervisor revisa en detalle la cotización recibida (Actual quote review).",
+  },
+  {
+    id: "step-11",
+    title: "¿Cotización aceptable?",
+    actor: "Supervisor",
+    type: "decision",
+    description: "El supervisor decide si las condiciones de la cotización son aceptables.",
+    yesLabel: "Sí, aceptable",
+    noLabel: "No, enviar respuesta al vendedor",
+    noNextId: "step-06",
+  },
+  {
+    id: "step-12",
+    title: "Preparar el pedido",
+    actor: "BuyerAgent",
+    type: "task",
+    description: "El agente comprador prepara la orden de compra (Order preparation) a partir de la cotización aceptada.",
+  },
+  {
+    id: "step-13",
+    title: "Revisar el pedido",
+    actor: "Supervisor",
+    type: "task",
+    description: "El supervisor revisa el pedido preparado antes de enviarlo (Order review).",
+  },
+  {
+    id: "step-14",
+    title: "¿Pedido aceptable?",
+    actor: "Supervisor",
+    type: "decision",
+    description: "El supervisor decide si el pedido puede enviarse.",
+    yesLabel: "Sí, aceptable",
+    noLabel: "No, revisar cotización de nuevo",
+    noNextId: "step-10",
+  },
+  {
+    id: "step-15",
+    title: "Surtir el pedido",
+    actor: "Seller",
+    type: "task",
+    description: "El vendedor surte el pedido recibido preparando la mercancía (Fulfill order).",
+  },
+  {
+    id: "step-16",
+    title: "Preparar la factura del pedido",
+    actor: "Seller",
+    type: "task",
+    description: "El vendedor prepara la factura del pedido surtido.",
+  },
+  {
+    id: "step-17",
+    title: "Recibir el producto solicitado",
+    actor: "ReceiveAgent",
+    type: "task",
+    description: "El agente receptor recibe el producto solicitado de parte del vendedor.",
+  },
+  {
+    id: "step-18",
+    title: "Recibir el pago del cliente",
+    actor: "Seller",
+    type: "task",
+    description: "El vendedor recibe el pago del cliente por el pedido surtido. El pedido queda completado.",
+  },
 ];
