@@ -59,6 +59,7 @@ export function initApp(): void {
   const boardSubtitle = qs<HTMLElement>("#board-subtitle");
   const ordersContainer = qs<HTMLElement>("#orders-container");
   const newOrderBtn = qs<HTMLButtonElement>("#new-order-btn");
+  const toastContainer = qs<HTMLElement>("#toast-container");
 
   populateSelect(actorField, ACTORS, ACTOR_LABELS);
   populateSelect(typeField, STEP_TYPES, STEP_TYPE_LABELS);
@@ -84,7 +85,37 @@ export function initApp(): void {
     }
   }
 
+  function showToast(message: string, variant: "info" | "reject" = "info"): void {
+    const toast = document.createElement("div");
+    toast.className = `toast ${variant}`;
+    toast.textContent = message;
+    toastContainer.appendChild(toast);
+
+    requestAnimationFrame(() => toast.classList.add("show"));
+    setTimeout(() => {
+      toast.classList.remove("show");
+      setTimeout(() => toast.remove(), 250);
+    }, 3200);
+  }
+
+  function refreshNavBadges(): void {
+    for (const actor of ACTORS) {
+      const btn = roleNav.querySelector<HTMLButtonElement>(`.role-tab[data-role="${actor}"]`);
+      if (!btn) continue;
+      btn.querySelector(".role-tab-badge")?.remove();
+
+      const count = orderBoard.getOrdersForActor(processList, actor).length;
+      if (count === 0) continue;
+
+      const badge = document.createElement("span");
+      badge.className = "role-tab-badge";
+      badge.textContent = String(count);
+      btn.appendChild(badge);
+    }
+  }
+
   function refreshBoard(): void {
+    refreshNavBadges();
     if (activeRole === "admin") return;
 
     if (activeRole === "summary") {
@@ -99,11 +130,23 @@ export function initApp(): void {
     boardSubtitle.textContent = "Pedidos que necesitan una acción de este rol en este momento.";
     renderActorBoard(ordersContainer, actor, orderBoard.getOrdersForActor(processList, actor), processList, {
       onAdvance: (orderId, nextStepId) => {
+        const order = orderBoard.getOrderById(orderId);
+        const code = order?.code ?? "El pedido";
         orderBoard.advanceOrder(orderId, nextStepId);
+
+        const nextStep = nextStepId ? processList.getStepById(nextStepId) : null;
+        showToast(
+          nextStep
+            ? `${code} pasó a ${ACTOR_LABELS[nextStep.actor]}: “${nextStep.title}”`
+            : `${code} se completó`
+        );
         refreshBoard();
       },
       onReject: (orderId) => {
+        const order = orderBoard.getOrderById(orderId);
+        const code = order?.code ?? "El pedido";
         orderBoard.rejectOrder(orderId);
+        showToast(`${code} fue rechazado`, "reject");
         refreshBoard();
       },
     });

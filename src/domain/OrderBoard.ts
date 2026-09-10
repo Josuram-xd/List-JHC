@@ -28,6 +28,10 @@ export class OrderBoard {
     return this.orders.toArray();
   }
 
+  public getOrderById(id: string): Order | null {
+    return this.orders.find((o) => o.id === id);
+  }
+
   public size(): number {
     return this.orders.size();
   }

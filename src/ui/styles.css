@@ -81,12 +81,34 @@ body {
 }
 
 .role-tab {
+  position: relative;
   background: var(--color-surface);
   border: 1px solid var(--color-border);
   color: var(--color-text-muted);
   border-radius: 999px;
   padding: 7px 14px;
   font-size: 0.8rem;
+}
+
+.role-tab-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  margin-left: 6px;
+  border-radius: 999px;
+  background: var(--color-accent);
+  color: #fff8f0;
+  font-size: 0.65rem;
+  font-weight: 700;
+  vertical-align: middle;
+}
+
+.role-tab.active .role-tab-badge {
+  background: #fff8f0;
+  color: var(--color-accent);
 }
 
 .role-tab:hover {
@@ -490,7 +512,21 @@ button {
 .order-card-actions {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: 16px;
+}
+
+.order-action {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  max-width: 240px;
+}
+
+.order-action-hint {
+  font-size: 0.72rem;
+  color: var(--color-text-muted);
+  line-height: 1.3;
 }
 
 .advance-btn {
@@ -516,6 +552,38 @@ button {
   background: var(--color-danger-soft);
   border-color: transparent;
   color: var(--color-danger);
+}
+
+.toast-container {
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-width: min(360px, calc(100vw - 32px));
+}
+
+.toast {
+  background: var(--color-text);
+  color: var(--color-surface);
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 0.82rem;
+  box-shadow: 0 4px 14px rgba(44, 38, 32, 0.18);
+  opacity: 0;
+  transform: translateY(8px);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.toast.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.toast.reject {
+  background: var(--color-danger);
 }
 
 .empty-state {

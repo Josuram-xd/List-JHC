@@ -78,6 +78,13 @@ export function renderActorBoard(
   }
 }
 
+function destinationText(nextStepId: string | null, processList: OrderProcessList): string {
+  if (!nextStepId) return "→ Se completa el pedido";
+  const step = processList.getStepById(nextStepId);
+  if (!step) return "→ Se completa el pedido";
+  return `→ pasa a ${ACTOR_LABELS[step.actor]}: “${step.title}”`;
+}
+
 function buildActionCard(
   order: Order,
   step: ProcessStep,
@@ -112,19 +119,25 @@ function buildActionCard(
   actions.className = "order-card-actions";
 
   if (step.type === "task") {
+    const nextId = processList.getNaturalNextId(step.id);
     actions.appendChild(
-      makeActionButton("advance-btn", "Completar y continuar", () => {
-        callbacks.onAdvance(order.id, processList.getNaturalNextId(step.id));
+      buildActionOption("advance-btn", "Completar y continuar", destinationText(nextId, processList), () => {
+        callbacks.onAdvance(order.id, nextId);
       })
     );
   } else {
+    const yesNextId = processList.getNaturalNextId(step.id);
     actions.appendChild(
-      makeActionButton("advance-btn yes-btn", step.yesLabel || "Sí", () => {
-        callbacks.onAdvance(order.id, processList.getNaturalNextId(step.id));
+      buildActionOption("advance-btn yes-btn", step.yesLabel || "Sí", destinationText(yesNextId, processList), () => {
+        callbacks.onAdvance(order.id, yesNextId);
       })
     );
+
+    const noHint = step.noNextId
+      ? destinationText(step.noNextId, processList)
+      : "→ Se rechaza el pedido";
     actions.appendChild(
-      makeActionButton("advance-btn no-btn", step.noLabel || "No", () => {
+      buildActionOption("advance-btn no-btn", step.noLabel || "No", noHint, () => {
         if (step.noNextId) callbacks.onAdvance(order.id, step.noNextId);
         else callbacks.onReject(order.id);
       })
@@ -135,13 +148,22 @@ function buildActionCard(
   return card;
 }
 
-function makeActionButton(className: string, label: string, onClick: () => void): HTMLButtonElement {
+function buildActionOption(className: string, label: string, hint: string, onClick: () => void): HTMLElement {
+  const wrapper = document.createElement("div");
+  wrapper.className = "order-action";
+
   const btn = document.createElement("button");
   btn.type = "button";
   btn.className = className;
   btn.textContent = label;
   btn.addEventListener("click", onClick);
-  return btn;
+
+  const hintEl = document.createElement("span");
+  hintEl.className = "order-action-hint";
+  hintEl.textContent = hint;
+
+  wrapper.append(btn, hintEl);
+  return wrapper;
 }
 
 function emptyMessage(text: string): HTMLElement {
